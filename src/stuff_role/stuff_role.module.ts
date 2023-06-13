@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { StuffRoleService } from './stuff_role.service';
 import { StuffRoleController } from './stuff_role.controller';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -8,9 +8,10 @@ import { Role } from '../role/models/role.model';
 import { RoleModule } from '../role/role.module';
 import { StuffService } from '../stuff/stuff.service';
 import { StuffModule } from '../stuff/stuff.module';
+import { RoleService } from '../role/role.service';
 
 @Module({
-  imports: [SequelizeModule.forFeature([Stuff, StuffRole, Role])],
+  imports: [forwardRef(()=>StuffModule), RoleModule, SequelizeModule.forFeature([Stuff, StuffRole, Role]), ],
   controllers: [StuffRoleController],
   providers: [StuffRoleService],
   exports: [StuffRoleService]

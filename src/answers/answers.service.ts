@@ -1,26 +1,46 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { UpdateAnswerDto } from './dto/update-answer.dto';
+import { Answer } from './models/answer.model';
+import { InjectModel } from '@nestjs/sequelize';
+import { QuestionsService } from '../questions/questions.service';
 
 @Injectable()
 export class AnswersService {
-  create(createAnswerDto: CreateAnswerDto) {
-    return 'This action adds a new answer';
-  }
+  constructor(
+    @InjectModel(Answer) private AnswerRepo: typeof Answer,
+    private readonly questionService: QuestionsService,
 
-  findAll() {
-    return `This action returns all answers`;
-  }
+    ) {}
+  
+    async create(createAnswerDto: CreateAnswerDto) {
+      const isExistsquestion = await this.questionService.findOne(createAnswerDto.question_id)
+      if(!isExistsquestion){
+        return new BadRequestException(`Subject_id ${createAnswerDto.question_id} is not exists`)
+      }
 
-  findOne(id: number) {
-    return `This action returns a #${id} answer`;
-  }
+      return this.AnswerRepo.create(createAnswerDto)
+    }
+  
+    async findAll() {
+  
+      const verib = await this.AnswerRepo.findAll({include:{all: true, nested: true}})
+      return verib
+    }
 
-  update(id: number, updateAnswerDto: UpdateAnswerDto) {
-    return `This action updates a #${id} answer`;
-  }
 
-  remove(id: number) {
-    return `This action removes a #${id} answer`;
-  }
+  
+    async findOne(id: number) {
+      const verib = await this.AnswerRepo.findByPk(id,{include:{all: true, nested: true}})
+      return verib
+    }
+  
+    async update(id: number, updateAnswerDto: UpdateAnswerDto) {
+      const verib = await this.AnswerRepo.update(updateAnswerDto, {where: {id}})
+      return verib
+    }
+  
+    remove(id: number) {
+      return this.AnswerRepo.destroy({where: {id}})
+    }
 }

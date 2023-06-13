@@ -1,3 +1,4 @@
+import { StuffRoleModule } from './../stuff_role/stuff_role.module';
 import { JwtService } from '@nestjs/jwt';
 import { StuffRoleService } from './../stuff_role/stuff_role.service';
 import { AddRoleDto } from './dto/Add-role.dto';
@@ -8,20 +9,22 @@ import { Role } from './../role/models/role.model';
 import { StuffRole } from './../stuff_role/models/stuff_role.model';
 import { CreateStuffByAdminDto } from './dto/create-stuff-by_admin.dto';
 import { Stuff } from './models/stuff.model';
-import { Injectable,BadRequestException  } from '@nestjs/common';
+import { Injectable,BadRequestException, Inject, forwardRef  } from '@nestjs/common';
 import { UpdateStuffDto } from './dto/update-stuff.dto';
 import { InjectModel } from "@nestjs/Sequelize";
 import * as bcrypt from 'bcryptjs';
 import { RoleService } from '../role/role.service';
 import { StuffLoginDto } from './dto/login.dto';
+import { RoleModule } from '../role/role.module';
 
 @Injectable()
 export class StuffService {
   constructor(
   @InjectModel(Stuff) private StuffRepo: typeof Stuff,
-  private readonly roleService: RoleService,
-  private readonly stuffRoleService: StuffRoleService,
-  private readonly jwtService: JwtService
+   private roleService: RoleService,
+  @Inject(forwardRef(()=> StuffRoleService)) 
+  private  stuffRoleService: StuffRoleService,
+  private  jwtService: JwtService
   
   ) {}
 
@@ -53,12 +56,15 @@ export class StuffService {
     
     const teacher_role = await this.roleService.findByName("o'qituvchi")
     
-    console.log('Logiwwwn>>>>', newStuff);
     
+    console.log('Logiwwwn>>>>', teacher_role);
     const newStuffRole = await this.stuffRoleService.create({
       stuff_id: newStuff.id,
       role_id: teacher_role.id
     })
+
+    console.log('Logiwwwn>>>><<<<', teacher_role);
+
 
     return {
       msg: "Staff registered",

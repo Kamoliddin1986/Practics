@@ -9,6 +9,7 @@ import { StuffGroup } from '../stuff_group/models/stuff_group.model';
 @Module({
   imports: [SequelizeModule.forFeature([Student, Group, StuffGroup])],
   controllers: [GroupController],
-  providers: [GroupService]
+  providers: [GroupService],
+  exports: [GroupService]
 })
 export class GroupModule {}

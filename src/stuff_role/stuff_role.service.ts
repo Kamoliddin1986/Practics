@@ -1,27 +1,34 @@
 import { Sequelize } from 'sequelize';
 import { StuffRole } from './models/stuff_role.model';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateStuffRoleDto } from './dto/create-stuff_role.dto';
 import { UpdateStuffRoleDto } from './dto/update-stuff_role.dto';
 import { InjectModel } from "@nestjs/Sequelize";
 import { Role } from '../role/models/role.model';
 import { Stuff } from '../stuff/models/stuff.model';
+import { RoleService } from '../role/role.service';
+import { StuffModule } from '../stuff/stuff.module';
+import { StuffService } from '../stuff/stuff.service';
+import { log } from 'console';
 @Injectable()
 export class StuffRoleService {
   constructor(
     @InjectModel(StuffRole) private StuffRoleRepo: typeof StuffRole,
-    @InjectModel(Role) private RoleRepo: typeof Role,
-    @InjectModel(Stuff) private StuffRepo: typeof Stuff,
+    private  roleService: RoleService,
+    @Inject(forwardRef(()=> StuffService)) 
+    private readonly stuffService: StuffService,
 
     ) {}
   
     async create(createStuffRoleDto: CreateStuffRoleDto) {
-      const isExistsRole = await this.RoleRepo.findOne({where: {id:createStuffRoleDto.role_id}})
+      console.log(createStuffRoleDto);
+      
+      const isExistsRole = await this.roleService.findOne(createStuffRoleDto.role_id)
       if(!isExistsRole){
         return new BadRequestException(`Role_id ${createStuffRoleDto.role_id} is not exists`)
       }
 
-      const isExistsStuff = await this.StuffRepo.findOne({where: {id: createStuffRoleDto.stuff_id}})
+      const isExistsStuff = await this.stuffService.findOne(createStuffRoleDto.stuff_id)
       if(!isExistsStuff){
         return new BadRequestException(`stuff_id ${createStuffRoleDto.stuff_id} is not exists`)
       }

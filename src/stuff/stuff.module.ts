@@ -4,7 +4,7 @@ import { RoleModule } from './../role/role.module';
 import { StuffRoleModule } from './../stuff_role/stuff_role.module';
 import { RoleService } from './../role/role.service';
 import { StuffRoleService } from './../stuff_role/stuff_role.service';
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { StuffService } from './stuff.service';
 import { StuffController } from './stuff.controller';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -14,9 +14,7 @@ import { StuffGroup } from '../stuff_group/models/stuff_group.model';
 import { StuffSubject } from '../stuff_subjects/models/stuff_subject.model';
 
 @Module({
-  imports: [SequelizeModule.forFeature([Stuff,StuffSubject, StuffRole, StuffGroup, Role]), 
-  RoleModule, 
-  StuffRoleModule,
+  imports: [ RoleModule, forwardRef(()=> StuffRoleModule), SequelizeModule.forFeature([Stuff,StuffSubject, StuffRole, StuffGroup, Role]), 
 JwtModule.register({})],
   controllers: [StuffController],
   providers: [StuffService],
